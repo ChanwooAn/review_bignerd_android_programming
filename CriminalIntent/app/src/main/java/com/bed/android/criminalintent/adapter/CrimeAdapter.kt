@@ -20,8 +20,8 @@ class CrimeAdapter(var crimes:List<Crime>,var context:Context) : RecyclerView.Ad
 
         fun bind(crime: Crime){
             titleTextView.text=crime.title
-            dateTextView.text=crime.date
-            Log.d(TAG,crime.date)
+            dateTextView.text=crime.date.toString()
+            Log.d(TAG,crime.date.toString())
             solvedImageView.visibility=if(crime.isSolved){
                 View.VISIBLE
             }else{
