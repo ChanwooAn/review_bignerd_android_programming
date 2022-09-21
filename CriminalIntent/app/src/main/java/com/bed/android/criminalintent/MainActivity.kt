@@ -2,8 +2,9 @@ package com.bed.android.criminalintent
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),CrimeListFragment.Callbacks {
 
 
 
@@ -20,6 +21,16 @@ class MainActivity : AppCompatActivity() {
                 .add(R.id.main_frame,fragment)
                 .commit()
         }
+
+    }
+
+    override fun onCrimeSelected(crimeId: UUID) {
+        val fragment=CrimeFragment.newInstance(crimeId)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.main_frame,fragment)
+            .addToBackStack(null)
+            .commit()
 
     }
 

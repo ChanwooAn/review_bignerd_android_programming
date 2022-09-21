@@ -1,4 +1,4 @@
-package com.bed.android.criminalintent.Model
+package com.bed.android.criminalintent.vm
 
 import androidx.lifecycle.ViewModel
 import com.bed.android.criminalintent.CrimeRepository
