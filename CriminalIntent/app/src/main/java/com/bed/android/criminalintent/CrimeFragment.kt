@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.bed.android.criminalintent.Model.Crime
 import com.bed.android.criminalintent.vm.CrimeDetailViewModel
@@ -18,6 +19,10 @@ import java.util.*
 
 private const val ARG_CRIME_ID="crime-id"
 private const val TAG="CrimeFragment"
+private const val DIALOG_DATE="DialogDate"
+private const val REQUEST_DATE="0"
+
+
 
 class CrimeFragment : Fragment(){
     private lateinit var crime: Crime
@@ -35,6 +40,8 @@ class CrimeFragment : Fragment(){
         Log.d(TAG,"args bundle crime ID: $crimeId")
         crimeDetailViewModel.loadCrime(crimeId)
 
+
+
     }
 
     override fun onCreateView(
@@ -48,11 +55,7 @@ class CrimeFragment : Fragment(){
         dateButton=view.findViewById(R.id.crime_date) as Button
         solvedCheckBox=view.findViewById(R.id.crime_solved) as CheckBox
 
-        dateButton.apply {
-            text=crime.date.toString()
-            isEnabled=false
 
-        }
         solvedCheckBox.apply {
             setOnCheckedChangeListener{
                 _,isChecked->
@@ -67,6 +70,13 @@ class CrimeFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        this@CrimeFragment.parentFragmentManager.setFragmentResultListener(REQUEST_DATE,viewLifecycleOwner)
+        { key, bundle->
+            if(key== REQUEST_DATE){
+                crime.date=bundle.get(DIALOG_DATE) as Date
+                updateUI()
+            }
+        }
         crimeDetailViewModel.crimeLiveData.observe(
             viewLifecycleOwner,
             androidx.lifecycle.Observer { crime->
@@ -100,6 +110,15 @@ class CrimeFragment : Fragment(){
 
         }
         titleField.addTextChangedListener(titleWatcher)
+
+
+
+        dateButton.setOnClickListener{
+            DatePickerFragment.newInstance(crime.date).apply {
+
+                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
+            }
+        }
     }
     override fun onStop(){
         super.onStop()
