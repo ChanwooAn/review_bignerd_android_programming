@@ -12,6 +12,8 @@ class MainActivity : AppCompatActivity(),CrimeListFragment.Callbacks {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+
         val currentFragment=supportFragmentManager.findFragmentById(R.id.main_frame)
 
         if(currentFragment==null){
