@@ -2,6 +2,8 @@ package com.bed.android.criminalintent
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -15,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -39,6 +42,9 @@ class CrimeFragment : Fragment(){
     private lateinit var solvedCheckBox:CheckBox
     private lateinit var reportButton:Button
     private lateinit var suspectButton:Button
+    private lateinit var callButton: Button
+
+    private lateinit var suspectResult:ActivityResultLauncher<Intent>
 
     private val crimeDetailViewModel:CrimeDetailViewModel by lazy{
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
@@ -51,6 +57,55 @@ class CrimeFragment : Fragment(){
         Log.d(TAG,"args bundle crime ID: $crimeId")
         crimeDetailViewModel.loadCrime(crimeId)
 
+
+        suspectResult=registerForActivityResult(ActivityResultContracts.StartActivityForResult()){result->
+            when{
+
+                result.resultCode==RESULT_OK && result.data!=null->{
+                    val contactUri: Uri = result.data!!.data?: return@registerForActivityResult
+                    val cursor = requireActivity().contentResolver.query(
+                        contactUri,
+                        arrayOf<String>(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                            ContactsContract.CommonDataKinds.Phone.NUMBER,)
+                        ,null,null,null
+                    )
+
+                    if(cursor?.moveToFirst() == true){
+                        val name=cursor.getString(0)
+                        val phone=cursor.getString(1)
+                        Log.d(TAG,"$name $phone")
+                        crime.suspect=name
+                        crimeDetailViewModel.saveCrime(crime)
+                        suspectButton.text=name
+                        callButton.text="Suspect Number: $phone"
+                    }
+
+
+
+
+                   /* val contactUri: Uri = result.data!!.data?: return@registerForActivityResult
+                    val queryFields=arrayOf(ContactsContract.Contacts.DISPLAY_NAME)// 쿼리에서 값으로 반환할 field를 지정한다.
+                    val cursor =
+                        requireActivity().contentResolver.
+                        query(contactUri,queryFields,null,null,null)//쿼리 수행
+
+                    cursor?.use {
+                        if(it.count==0){
+                            return@registerForActivityResult
+                        }//쿼리 결과 data가 있는지 확인
+
+                        it.moveToFirst()
+                        val suspect=it.getString(0)
+                        crime.suspect=suspect
+                        crimeDetailViewModel.saveCrime(crime)
+                        suspectButton.text=suspect
+
+
+
+                    }*/
+                }
+            }
+        }
 
 
     }
@@ -67,7 +122,7 @@ class CrimeFragment : Fragment(){
         solvedCheckBox=view.findViewById(R.id.crime_solved) as CheckBox
         reportButton=view.findViewById(R.id.crime_report) as Button
         suspectButton=view.findViewById(R.id.crime_suspect) as Button
-
+        callButton=view.findViewById(R.id.crime_call) as Button
         solvedCheckBox.apply {
             setOnCheckedChangeListener{
                 _,isChecked->
@@ -162,39 +217,34 @@ class CrimeFragment : Fragment(){
 
             }
         }
-        val suspectResult=registerForActivityResult(ActivityResultContracts.StartActivityForResult()){result->
-            when{
-                result.resultCode==RESULT_OK && result.data!=null->{
-                    val contactUri: Uri = result.data!!.data?: return@registerForActivityResult
-                    val queryFields=arrayOf(ContactsContract.Contacts.DISPLAY_NAME)// 쿼리에서 값으로 반환할 field를 지정한다.
-                    val cursor =
-                        requireActivity().contentResolver.
-                        query(contactUri,queryFields,null,null,null)//쿼리 수행
 
-                    cursor?.use {
-                        if(it.count==0){
-                            return@registerForActivityResult
-                        }//쿼리 결과 data가 있는지 확인
-
-                        it.moveToFirst()
-                        val suspect=it.getString(0)
-                        crime.suspect=suspect
-                        crimeDetailViewModel.saveCrime(crime)
-                        suspectButton.text=suspect
-
-
-
-                    }
-                }
-            }
-        }
         suspectButton.apply{
-            val pickerFragment=Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI)
-
+            val pickerFragment=Intent(Intent.ACTION_PICK,ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
             setOnClickListener{
-
+                suspectResult.launch(pickerFragment)
+            }
+            val packageManager=requireActivity().packageManager
+            val resolveActivity=packageManager.resolveActivity(pickerFragment,PackageManager.MATCH_DEFAULT_ONLY)
+            if(resolveActivity==null){
+                isEnabled=false
             }
         }
+        callButton.apply {
+            val callIntent=Intent(Intent.ACTION_DIAL)
+
+
+
+            setOnClickListener {
+                val getNumber=callButton.text.replace("[^0-9]".toRegex(),"")
+                val number= Uri.parse("tel:${getNumber}")
+                Log.d(TAG,number.toString())
+                callIntent.setData(number)
+                startActivity(callIntent)
+            }
+
+        }
+
+
 
     }
     override fun onStop(){

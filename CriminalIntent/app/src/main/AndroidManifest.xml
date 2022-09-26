@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bed.android.criminalintent">
 
+<!--
+    <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+-->
     <application
         android:name=".CriminalIntentApplication"
         android:allowBackup="true"
