@@ -5,6 +5,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.bed.android.criminalintent.CrimeRepository
 import com.bed.android.criminalintent.Model.Crime
+import java.io.File
 import java.util.*
 
 class CrimeDetailViewModel : ViewModel() {
@@ -17,7 +18,9 @@ class CrimeDetailViewModel : ViewModel() {
 
     }
 
-
+    fun getPhotoFile(crime:Crime): File {
+        return crimeRepository.getPhotoFile(crime)
+    }
     fun loadCrime(crimeId:UUID){
         crimeIdLiveData.value=crimeId
     }

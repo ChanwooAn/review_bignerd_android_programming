@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<paths>
+    <files-path
+        name="photos"
+        path="."/>
+
+    <!-- file-path는 context.getFilesDir()에 해당되는 영역이다.-->
+
+</paths>
