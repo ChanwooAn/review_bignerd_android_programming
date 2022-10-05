@@ -27,7 +27,15 @@ class CrimeRepository private constructor(context: Context) {
     private val crimeDao=database.crimeDao()
     private val executor=Executors.newSingleThreadExecutor()
     private val filesDir=context.applicationContext.filesDir
-    fun getPhotoFile(crime:Crime): File =File(filesDir,crime.photoFileName)
+    fun getPhotoFile(crime:Crime): File {
+        val path=File(filesDir,"image")
+        if(!path.exists()){
+            path.mkdirs()
+        }
+
+
+        return File(path,crime.photoFileName)
+    }
 
 
 
