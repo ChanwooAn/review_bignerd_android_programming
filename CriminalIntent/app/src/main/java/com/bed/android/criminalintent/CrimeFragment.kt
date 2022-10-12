@@ -2,12 +2,15 @@ package com.bed.android.criminalintent
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.database.Cursor
+import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -18,6 +21,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -25,6 +29,7 @@ import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toDrawable
@@ -210,6 +215,7 @@ class CrimeFragment : Fragment() {
         return getString(R.string.crime_report, crime.title, dateString, solvedString, suspect)
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onStart() {
         super.onStart()
 
@@ -227,13 +233,6 @@ class CrimeFragment : Fragment() {
         }
         titleField.addTextChangedListener(titleWatcher)
 
-
-
-        dateButton.setOnClickListener {
-            DatePickerFragment.newInstance(crime.date).apply {
-                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
-            }
-        }
         reportButton.setOnClickListener {
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -274,17 +273,22 @@ class CrimeFragment : Fragment() {
             }
 
         }
-        expandButton.apply {
-            isEnabled = false
-            setOnClickListener {
-                val bitmap = getScaledBitmap(photoFile.path, requireActivity())
-                PhotoExpand.newInstance(bitmap).apply {
-                    show(this@CrimeFragment.parentFragmentManager, "ExpandPhoto")
-                }
+        dateButton.setOnClickListener {
+            DatePickerFragment.newInstance(crime.date).apply {
+                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
             }
+        }
+        expandButton.setOnClickListener {
+            Log.d(TAG,"expandclick")
+            val bitmap = getScaledBitmap(photoFile.path, requireActivity())
+            val photoDialog=PhotoExpand.newInstance(bitmap)
+
+            photoDialog.show(parentFragmentManager,"photoexpand")
+            val windowManager = context?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
 
         }
+
         photoButton.apply {
             val packageManager: PackageManager = requireActivity().packageManager
             val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
