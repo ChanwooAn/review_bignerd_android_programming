@@ -3,6 +3,7 @@ package com.bed.android.criminalintent
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import java.util.*
@@ -16,7 +17,7 @@ class DatePickerFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val date=arguments?.get(ARG_DATE) as Date
-
+        Log.d("Date","date")
         val calendar= Calendar.getInstance()
         calendar.time=date//CrimeFragment에서 전달받은 date로 Datepicker를 설정.
 
