@@ -2,6 +2,7 @@ package com.example.photogallery
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.photogallery.PhotoGalleryFragment.PhotoFragment
 
 class PhotoGalleryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,7 +12,7 @@ class PhotoGalleryActivity : AppCompatActivity() {
         val isFragmentContainerEmpty= (savedInstanceState==null)
         if(isFragmentContainerEmpty){
             supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container,PhotoFragment.newInstance())
+                .add(R.id.fragment_container, PhotoFragment.newInstance())
                 .commit()
         }
         //isFragmentContainerEmpty 가 false일 경우 이미 호스팅 된 fragment가 있다는 의미.
